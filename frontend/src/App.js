@@ -56,17 +56,32 @@ function App() {
   // Function to add attribute to table
   const handleSelectChange = (event) => {
     const value = event.target.value;
-    if (!selectedColumns.includes(value)) {
-      setSelectedColumns((oldArray) => [...oldArray, value]);
-      // Display SweetAlert2 message after table is added
-      Swal.fire({
-        title: "New Attribute Added",
-        text: `${value} has been added successfully.`,
-        icon: "success",
-        timer: 2000,
-      });
+    if (!selectedColumns.includes(value) && value) {
+        // SweetAlert2 confirmation dialog
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `Do you want to add the "${value}" attribute to the table?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, add it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // User confirmed the addition
+                setSelectedColumns(oldArray => [...oldArray, value]);
+                // Optionally, show a success message
+                Swal.fire({
+                  title: 'Added!',
+                  text: `The "${value}" attribute has been added to the table.`,
+                  icon: 'success',
+                  timer: 2000, // Alert will close after 2000 milliseconds
+              });
+            }
+        });
     }
-  };
+};
+
   // Parse String date time into date time object
   const parseDate = (str) => {
     const [day, month, year] = str.split("/").map((val) => parseInt(val, 10));
@@ -97,19 +112,40 @@ function App() {
 
   const data = useMemo(() => players, [players]);
   const tableInstance = useTable({ columns, data }, useSortBy); //Creating an table instance
-
-  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, state: { sortBy } } =
     tableInstance;
+  console.log('SortBy state:', sortBy);
 
-  const handleRemoveColumn = (columnName) => {
-    // Create a new array that excludes the columnName
-    const updatedColumns = selectedColumns.filter(
-      (column) => column !== columnName
-    );
-    // Update the state with this new array
-    setSelectedColumns(updatedColumns);
-    console.log(updatedColumns);
-  };
+  // Function to remove the selected column
+  const handleRemoveColumn = (columnName, event) => {
+    // Stop the click event from propagating up to the column header
+    event.stopPropagation();
+
+    // SweetAlert2 confirmation dialog
+    Swal.fire({
+        title: 'Are you sure?',
+        text: `Do you want to remove the "${columnName}" column?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, remove it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // User confirmed the deletion
+            const updatedColumns = selectedColumns.filter(column => column !== columnName);
+            setSelectedColumns(updatedColumns);
+            // Optionally, show a success message
+            Swal.fire({
+              title: 'Removed!',
+              text: `The "${columnName}" column has been removed.`,
+              icon: 'success',
+              timer: 2000, // Alert will close after 2000 milliseconds
+          });
+        }
+    });
+};
+
 
   return (
     <>
@@ -135,7 +171,7 @@ function App() {
           {/* Attributes Table*/}
           <h2 style={{ textAlign: "center" }}>Player Attributes Table</h2>
           <table {...getTableProps()}>
-          <thead>
+            <thead>
               {headerGroups.map((headerGroup) => (
                 <tr {...headerGroup.getHeaderGroupProps()}>
                   {headerGroup.headers.map((column) => (
@@ -152,7 +188,7 @@ function App() {
                           </span>
                         </div>
                         <span
-                          onClick={() => handleRemoveColumn(column.id)}
+                          onClick={(e) => handleRemoveColumn(column.id, e)}
                           style={{ cursor: "pointer" }}
                         >
                           ❌ {/* This is the remove icon/button */}
