@@ -135,27 +135,29 @@ function App() {
           {/* Attributes Table*/}
           <h2 style={{ textAlign: "center" }}>Player Attributes Table</h2>
           <table {...getTableProps()}>
-            <thead>
+          <thead>
               {headerGroups.map((headerGroup) => (
                 <tr {...headerGroup.getHeaderGroupProps()}>
                   {headerGroup.headers.map((column) => (
-                    <th
-                      {...column.getHeaderProps(column.getSortByToggleProps())}
-                    >
-                      {column.render("Header")}
-                      <span style={{ marginLeft: "10px" }}>
-                        {column.isSorted
-                          ? column.isSortedDesc
-                            ? "🔽"
-                            : "🔼"
-                          : "↕️"}
-                      </span>
-                      <span
-                        onClick={() => handleRemoveColumn(column.id)}
-                        style={{ cursor: "pointer", marginLeft: "5px" }}
-                      >
-                        ❌ {/* This is the remove icon/button */}
-                      </span>
+                    <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div>
+                          {column.render("Header")}
+                          <span style={{ marginLeft: "10px" }}>
+                            {column.isSorted
+                              ? column.isSortedDesc
+                                ? "🔽"
+                                : "🔼"
+                              : "↕️"}
+                          </span>
+                        </div>
+                        <span
+                          onClick={() => handleRemoveColumn(column.id)}
+                          style={{ cursor: "pointer" }}
+                        >
+                          ❌ {/* This is the remove icon/button */}
+                        </span>
+                      </div>
                     </th>
                   ))}
                 </tr>
